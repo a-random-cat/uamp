@@ -59,15 +59,11 @@ class PersistentStorage private constructor(val context: Context) {
              * from the network as it may be too slow or unavailable immediately after boot. Instead
              * we convert the iconUri to point to the Glide on-disk cache.
              */
-            val localIconUri = Glide.with(context).asFile().load(description.iconUri)
-                .submit(NOTIFICATION_LARGE_ICON_SIZE, NOTIFICATION_LARGE_ICON_SIZE).get()
-                .asAlbumArtContentUri()
 
             preferences.edit()
                 .putString(RECENT_SONG_MEDIA_ID_KEY, description.mediaId)
                 .putString(RECENT_SONG_TITLE_KEY, description.title.toString())
                 .putString(RECENT_SONG_SUBTITLE_KEY, description.subtitle.toString())
-                .putString(RECENT_SONG_ICON_URI_KEY, localIconUri.toString())
                 .putLong(RECENT_SONG_POSITION_KEY, position)
                 .apply()
         }
@@ -88,7 +84,6 @@ class PersistentStorage private constructor(val context: Context) {
                     .setMediaId(mediaId)
                     .setTitle(preferences.getString(RECENT_SONG_TITLE_KEY, ""))
                     .setSubtitle(preferences.getString(RECENT_SONG_SUBTITLE_KEY, ""))
-                    .setIconUri(Uri.parse(preferences.getString(RECENT_SONG_ICON_URI_KEY, "")))
                     .setExtras(extras)
                     .build(), FLAG_PLAYABLE
             )
