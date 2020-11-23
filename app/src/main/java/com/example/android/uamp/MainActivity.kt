@@ -18,8 +18,8 @@ package com.example.android.uamp
 
 import android.media.AudioManager
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
+import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -85,6 +85,23 @@ class MainActivity : AppCompatActivity() {
                 navigateToMediaItem(mediaId)
             }
         })
+
+        viewModel.goBackCounter.observe(this, Observer {
+            if (it > Long.MIN_VALUE) {
+                onBackPressed()
+            }
+        })
+
+
+        viewModel.musicServiceConnection.shuffleState.observe(this, Observer { state ->
+            invalidateOptionsMenu()
+        })
+
+        viewModel.musicServiceConnection.repeatState.observe(this, Observer { state ->
+            //  @IntDef({REPEAT_MODE_INVALID, REPEAT_MODE_NONE, REPEAT_MODE_ONE, REPEAT_MODE_ALL,  REPEAT_MODE_GROUP})
+            invalidateOptionsMenu()
+        })
+
     }
 
     @Override
@@ -92,11 +109,37 @@ class MainActivity : AppCompatActivity() {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.main_activity_menu, menu)
 
+        when (viewModel.musicServiceConnection.shuffleState.value) {
+            0 -> menu?.findItem(R.id.menu_shuffle)?.setIcon(R.drawable.exo_icon_shuffle_off)
+            1 -> menu?.findItem(R.id.menu_shuffle)?.setIcon(R.drawable.exo_icon_shuffle_on)
+        }
+
+        when (viewModel.musicServiceConnection.repeatState.value) {
+            0 -> menu?.findItem(R.id.menu_repeat)?.setIcon(R.drawable.exo_icon_repeat_off)
+            1 -> menu?.findItem(R.id.menu_repeat)?.setIcon(R.drawable.exo_icon_repeat_one)
+            2 -> menu?.findItem(R.id.menu_repeat)?.setIcon(R.drawable.exo_icon_repeat_all)
+        }
+
         /**
          * Set up a MediaRouteButton to allow the user to control the current media playback route
          */
         CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item)
         return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_repeat -> {
+                viewModel.setRepeat((viewModel.musicServiceConnection.repeatState.value!! + 1) % 3)
+                true
+            }
+            R.id.menu_shuffle -> {
+                viewModel.setShuffle((viewModel.musicServiceConnection.shuffleState.value!! + 1) % 2)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+
     }
 
     private fun navigateToMediaItem(mediaId: String) {

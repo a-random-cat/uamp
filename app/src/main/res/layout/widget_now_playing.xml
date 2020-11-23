@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:background="@color/red_500">
+
+    <ImageView
+        android:id="@+id/playing_art"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+
+        android:src="@drawable/exo_controls_rewind"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_width="30dp"
+        android:layout_height="30dp"/>
+
+    <LinearLayout
+        android:layout_toLeftOf="@id/playing_playpause"
+        android:layout_toRightOf="@id/playing_art"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical">
+        <TextView
+            android:id="@+id/playing_title"
+            android:text="Song Title"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:textAppearance="@style/TextAppearance.Uamp.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/playing_subtitle"
+            android:text="Song Artist"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:textAppearance="@style/TextAppearance.Uamp.Subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/playing_playpause"
+        android:src="@drawable/exo_icon_play"
+        android:layout_marginLeft="10dp"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/playing_next"
+        android:layout_width="30dp"
+        android:layout_height="30dp"/>
+    <ImageView
+        android:id="@+id/playing_next"
+        android:src="@drawable/exo_icon_next"
+        android:layout_marginRight="10dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="30dp"
+        android:layout_height="30dp"/>
+
+    <ProgressBar
+        android:id="@+id/playing_progress"
+        android:layout_alignParentBottom="true"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:progress="90"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"/>
+</RelativeLayout>

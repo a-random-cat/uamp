@@ -14,9 +14,22 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragmentContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.uamp.MainActivity" />
+    android:animateLayoutChanges="true"
+    tools:context="com.example.android.uamp.MainActivity">
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/widget_now_playing"/>
+    <fragment
+        android:name="com.example.android.uamp.fragments.NowPlayingMiniFragment"
+        android:id="@+id/widget_now_playing"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"/>
+</RelativeLayout>

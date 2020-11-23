@@ -20,6 +20,7 @@ import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.recyclerview.widget.DiffUtil
+import com.example.android.uamp.viewmodels.MainActivityViewModel
 import com.example.android.uamp.viewmodels.MediaItemFragmentViewModel
 
 /**
@@ -31,12 +32,14 @@ import com.example.android.uamp.viewmodels.MediaItemFragmentViewModel
  * Objects of this class are built from [MediaItem]s in
  * [MediaItemFragmentViewModel.subscriptionCallback].
  */
+
+
 data class MediaItemData(
     val mediaId: String,
     val title: String,
     val subtitle: String,
     val albumArtUri: Uri,
-    val browsable: Boolean,
+    val type: MainActivityViewModel.MediaType,
     var playbackRes: Int
 ) {
 

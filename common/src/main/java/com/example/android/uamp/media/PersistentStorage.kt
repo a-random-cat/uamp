@@ -94,6 +94,30 @@ class PersistentStorage private constructor(val context: Context) {
             )
         }
     }
+
+    suspend fun setShuffle(shuffle:Int) {
+        withContext(Dispatchers.IO) {
+            preferences.edit()
+                    .putInt(SHUFFLE, shuffle)
+                    .apply()
+        }
+    }
+
+    suspend fun setRepeat(repeat:Int) {
+        withContext(Dispatchers.IO) {
+            preferences.edit()
+                    .putInt(REPEAT, repeat)
+                    .apply()
+        }
+    }
+
+    fun getShuffle(): Int {
+        return preferences.getInt(SHUFFLE, 0)
+    }
+
+    fun getRepeat(): Int {
+        return preferences.getInt(REPEAT, 0)
+    }
 }
 
 private const val PREFERENCES_NAME = "uamp"
@@ -102,3 +126,6 @@ private const val RECENT_SONG_TITLE_KEY = "recent_song_title"
 private const val RECENT_SONG_SUBTITLE_KEY = "recent_song_subtitle"
 private const val RECENT_SONG_ICON_URI_KEY = "recent_song_icon_uri"
 private const val RECENT_SONG_POSITION_KEY = "recent_song_position"
+
+private const val SHUFFLE = "shuffle"
+private const val REPEAT = "repeat"

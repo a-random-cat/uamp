@@ -34,6 +34,7 @@ import com.example.android.uamp.common.EMPTY_PLAYBACK_STATE
 import com.example.android.uamp.common.MusicServiceConnection
 import com.example.android.uamp.common.NOTHING_PLAYING
 import com.example.android.uamp.fragments.NowPlayingFragment
+import com.example.android.uamp.media.MusicService
 import com.example.android.uamp.media.extensions.albumArtUri
 import com.example.android.uamp.media.extensions.currentPlayBackPosition
 import com.example.android.uamp.media.extensions.displaySubtitle
@@ -41,6 +42,7 @@ import com.example.android.uamp.media.extensions.duration
 import com.example.android.uamp.media.extensions.id
 import com.example.android.uamp.media.extensions.isPlaying
 import com.example.android.uamp.media.extensions.title
+import kotlin.math.floor
 
 /**
  * [ViewModel] for [NowPlayingFragment] which displays the album art in full size.
@@ -61,7 +63,9 @@ class NowPlayingFragmentViewModel(
         val albumArtUri: Uri,
         val title: String?,
         val subtitle: String?,
-        val duration: String
+        val duration: String,
+        val durationVal: Int,
+        val playbackSpeed: Float
     ) {
 
         companion object {
@@ -69,16 +73,28 @@ class NowPlayingFragmentViewModel(
              * Utility method to convert milliseconds to a display of minutes and seconds
              */
             fun timestampToMSS(context: Context, position: Long): String {
-                val totalSeconds = Math.floor(position / 1E3).toInt()
-                val minutes = totalSeconds / 60
+                val totalSeconds = floor(position / 1E3).toInt()
+
+                var minutes = totalSeconds / 60
                 val remainingSeconds = totalSeconds - (minutes * 60)
-                return if (position < 0) context.getString(R.string.duration_unknown)
-                else context.getString(R.string.duration_format).format(minutes, remainingSeconds)
+
+                val hours = minutes / 60
+                minutes %= 60
+                return if (position < 0) {
+                    context.getString(R.string.duration_unknown)
+                } else if (hours > 0) {
+                    context.getString(R.string.duration_format_hours).format(hours, minutes, remainingSeconds)
+                } else {
+                    context.getString(R.string.duration_format).format(minutes, remainingSeconds)
+                }
             }
         }
     }
 
+
     private var playbackState: PlaybackStateCompat = EMPTY_PLAYBACK_STATE
+
+
     val mediaMetadata = MutableLiveData<NowPlayingMetadata>()
     val mediaPosition = MutableLiveData<Long>().apply {
         postValue(0L)
@@ -111,6 +127,10 @@ class NowPlayingFragmentViewModel(
         updateState(playbackState, it)
     }
 
+
+
+
+
     /**
      * Because there's a complex dance between this [ViewModel] and the [MusicServiceConnection]
      * (which is wrapping a [MediaBrowserCompat] object), the usual guidance of using
@@ -128,6 +148,7 @@ class NowPlayingFragmentViewModel(
     private val musicServiceConnection = musicServiceConnection.also {
         it.playbackState.observeForever(playbackStateObserver)
         it.nowPlaying.observeForever(mediaMetadataObserver)
+
         checkPlaybackPosition()
     }
 
@@ -158,6 +179,8 @@ class NowPlayingFragmentViewModel(
         musicServiceConnection.playbackState.removeObserver(playbackStateObserver)
         musicServiceConnection.nowPlaying.removeObserver(mediaMetadataObserver)
 
+
+
         // Stop updating the position
         updatePosition = false
     }
@@ -174,7 +197,9 @@ class NowPlayingFragmentViewModel(
                 mediaMetadata.albumArtUri,
                 mediaMetadata.title?.trim(),
                 mediaMetadata.displaySubtitle?.trim(),
-                NowPlayingMetadata.timestampToMSS(app, mediaMetadata.duration)
+                NowPlayingMetadata.timestampToMSS(app, mediaMetadata.duration),
+                mediaMetadata.duration.toInt(),
+                playbackState.playbackSpeed
             )
             this.mediaMetadata.postValue(nowPlayingMetadata)
         }
@@ -186,6 +211,28 @@ class NowPlayingFragmentViewModel(
                 else -> R.drawable.ic_play_arrow_black_24dp
             }
         )
+    }
+
+
+
+    fun skipNext() {
+        musicServiceConnection.transportControls.skipToNext()
+    }
+
+    fun skipPrev() {
+        musicServiceConnection.transportControls.skipToPrevious()
+    }
+
+    fun fastForward() {
+        musicServiceConnection.transportControls.fastForward()
+    }
+
+    fun rewind() {
+        musicServiceConnection.transportControls.rewind()
+    }
+
+    fun setPlaybackSpeed(spd: Float) {
+       MusicService.playbackSpeed.postValue(spd)
     }
 
     class Factory(

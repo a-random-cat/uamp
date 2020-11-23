@@ -16,11 +16,13 @@
 
 package com.example.android.uamp.viewmodels
 
+import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -28,6 +30,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.android.uamp.MediaItemData
+import com.example.android.uamp.MusicApplication
 import com.example.android.uamp.R
 import com.example.android.uamp.common.EMPTY_PLAYBACK_STATE
 import com.example.android.uamp.common.MusicServiceConnection
@@ -35,6 +38,8 @@ import com.example.android.uamp.common.NOTHING_PLAYING
 import com.example.android.uamp.fragments.MediaItemFragment
 import com.example.android.uamp.media.extensions.id
 import com.example.android.uamp.media.extensions.isPlaying
+import com.example.android.uamp.media.library.RESOURCE_ROOT_URI
+import com.example.android.uamp.media.library.UAMP_BROWSABLE_ROOT
 
 /**
  * [ViewModel] for [MediaItemFragment].
@@ -58,18 +63,53 @@ class MediaItemFragmentViewModel(
 
     private val subscriptionCallback = object : SubscriptionCallback() {
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            val itemsList = children.map { child ->
-                val subtitle = child.description.subtitle ?: ""
-                MediaItemData(
-                    child.mediaId!!,
-                    child.description.title.toString(),
-                    subtitle.toString(),
-                    child.description.iconUri!!,
-                    child.isBrowsable,
-                    getResourceForMediaId(child.mediaId!!)
-                )
+            Log.i("Meow", "Parent:"+parentId)
+
+
+            val itemsList = mutableListOf<MediaItemData>()
+            if (parentId != UAMP_BROWSABLE_ROOT) {
+                itemsList.add(MediaItemData(
+                        "Up",
+                        "Up",
+                        "",
+                        Uri.parse(RESOURCE_ROOT_URI + MusicApplication.getInstance().resources.getResourceEntryName(com.example.android.uamp.media.R.drawable.ic_album)),
+                        MainActivityViewModel.MediaType.UP(parentId),
+                        0
+                ))
             }
-            _mediaItems.postValue(itemsList)
+
+            itemsList.add(MediaItemData(
+                    "Play All",
+                    "Play All",
+                    "",
+                    Uri.parse(RESOURCE_ROOT_URI + MusicApplication.getInstance().resources.getResourceEntryName(com.example.android.uamp.media.R.drawable.ic_album)),
+                    MainActivityViewModel.MediaType.PLAY_ALL(parentId),
+                    0
+            ))
+
+            children.forEach { child ->
+                val subtitle = child.description.subtitle ?: ""
+                if (child.isBrowsable) {
+                    itemsList.add(MediaItemData(
+                            child.mediaId!!,
+                            child.description.title.toString(),
+                            subtitle.toString(),
+                            child.description.iconUri!!,
+                            MainActivityViewModel.MediaType.DIRECTORY(child.mediaId!!),
+                            0
+                    ))
+                } else {
+                    itemsList.add(MediaItemData(
+                            child.mediaId!!,
+                            child.description.title.toString(),
+                            subtitle.toString(),
+                            child.description.iconUri!!,
+                            MainActivityViewModel.MediaType.MEDIA(),
+                            getResourceForMediaId(child.mediaId!!)
+                    ))
+                }
+            }
+            _mediaItems.postValue(itemsList.toList())
         }
     }
 

@@ -20,6 +20,7 @@
     package="com.example.android.uamp">
 
     <application
+        android:name=".MusicApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -39,12 +40,16 @@
         <!-- Declare that UAMP supports Cast. -->
         <meta-data android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="com.example.android.uamp.cast.UampCastOptionsProvider"/>
-
-        <activity android:name=".MainActivity">
+        <activity android:name=".LoadActivity"
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity android:name=".MainActivity">
+
 
             <!-- App links for http -->
             <intent-filter>
@@ -92,6 +97,11 @@
             </intent-filter>
         </service>
 
+        <receiver
+            android:exported="true"
+            android:name="androidx.mediarouter.media.MediaTransferReceiver" />
+
     </application>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
 </manifest>

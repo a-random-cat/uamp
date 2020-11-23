@@ -40,8 +40,16 @@ import com.example.android.uamp.utils.Event
  * and provides the root/initial media ID of the underlying [MediaBrowserCompat].
  */
 class MainActivityViewModel(
-    private val musicServiceConnection: MusicServiceConnection
+    val musicServiceConnection: MusicServiceConnection
 ) : ViewModel() {
+
+
+
+    val isShowing = MutableLiveData<Boolean>().apply {
+        postValue(false)
+    }
+
+    val goBackCounter = MutableLiveData<Long>().apply { postValue(Long.MIN_VALUE) }
 
     val rootMediaId: LiveData<String> =
         Transformations.map(musicServiceConnection.isConnected) { isConnected ->
@@ -68,6 +76,14 @@ class MainActivityViewModel(
     val navigateToFragment: LiveData<Event<FragmentNavigationRequest>> get() = _navigateToFragment
     private val _navigateToFragment = MutableLiveData<Event<FragmentNavigationRequest>>()
 
+    sealed class MediaType {
+        class MEDIA : MediaType()
+        class DIRECTORY(val path: String) : MediaType()
+        class PLAY_ALL(val path: String) : MediaType()
+        class UP(val path: String) : MediaType()
+    }
+
+
     /**
      * This method takes a [MediaItemData] and routes it depending on whether it's
      * browsable (i.e.: it's the parent media item of a set of other media items,
@@ -77,13 +93,30 @@ class MainActivityViewModel(
      * browse to it, otherwise play it.
      */
     fun mediaItemClicked(clickedItem: MediaItemData) {
-        if (clickedItem.browsable) {
-            browseToItem(clickedItem)
-        } else {
-            playMedia(clickedItem, pauseAllowed = false)
-            showFragment(NowPlayingFragment.newInstance())
+        Log.i("Meow", "type is "+clickedItem.type)
+        when (clickedItem.type) {
+            is MediaType.MEDIA -> {
+                playMedia(clickedItem, pauseAllowed = false)
+                showFragment(NowPlayingFragment.newInstance())
+            }
+
+            is MediaType.DIRECTORY -> {
+                Log.i("Meow", clickedItem.type.path)
+                browseToItem(clickedItem)
+            }
+
+            is MediaType.PLAY_ALL -> {
+                Log.i("Meow", clickedItem.type.path)
+
+                musicServiceConnection.transportControls.playFromMediaId(clickedItem.type.path, null)
+            }
+
+            is MediaType.UP -> {
+                goBackCounter.postValue(goBackCounter.value?.inc())
+            }
         }
     }
+
 
 
     /**
@@ -117,6 +150,8 @@ class MainActivityViewModel(
         val transportControls = musicServiceConnection.transportControls
 
         val isPrepared = musicServiceConnection.playbackState.value?.isPrepared ?: false
+
+        Log.i("Meow", "${nowPlaying} ${isPrepared}")
         if (isPrepared && mediaItem.mediaId == nowPlaying?.id) {
             musicServiceConnection.playbackState.value?.let { playbackState ->
                 when {
@@ -132,8 +167,13 @@ class MainActivityViewModel(
                 }
             }
         } else {
+            Log.i("Meow", "Playing Media ${mediaItem.mediaId}")
             transportControls.playFromMediaId(mediaItem.mediaId, null)
         }
+    }
+
+    fun userPressSeekTo(position: Int) {
+        musicServiceConnection.transportControls.seekTo(position.toLong())
     }
 
     fun playMediaId(mediaId: String) {
@@ -167,6 +207,15 @@ class MainActivityViewModel(
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             return MainActivityViewModel(musicServiceConnection) as T
         }
+    }
+
+
+    fun setShuffle(v: Int) {
+        musicServiceConnection.transportControls.setShuffleMode(v)
+    }
+
+    fun setRepeat(v: Int) {
+        musicServiceConnection.transportControls.setRepeatMode(v)
     }
 }
 

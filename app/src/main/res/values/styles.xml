@@ -25,6 +25,7 @@
 
     <style name="TextAppearance.Uamp.Title" parent="@style/TextAppearance.AppCompat.Title">
         <item name="android:textColor">?android:textColorSecondary</item>
+        <item name="android:textSize">16dp</item>
     </style>
 
     <style name="TextAppearance.Uamp.Subtitle" parent="@style/TextAppearance.AppCompat.Small">

@@ -28,9 +28,15 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.media.MediaBrowserServiceCompat
+import com.example.android.uamp.MusicApplication
 import com.example.android.uamp.common.MusicServiceConnection.MediaBrowserConnectionCallback
 import com.example.android.uamp.media.NETWORK_FAILURE
+import com.example.android.uamp.media.PersistentStorage
 import com.example.android.uamp.media.extensions.id
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /**
  * Class that manages a connection to a [MediaBrowserServiceCompat] instance, typically a
@@ -52,6 +58,9 @@ import com.example.android.uamp.media.extensions.id
  *  [MediaBrowserConnectionCallback] and [MediaBrowserCompat] objects.
  */
 class MusicServiceConnection(context: Context, serviceComponent: ComponentName) {
+    private val serviceJob = SupervisorJob()
+    private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
+
     val isConnected = MutableLiveData<Boolean>()
         .apply { postValue(false) }
     val networkFailure = MutableLiveData<Boolean>()
@@ -66,6 +75,9 @@ class MusicServiceConnection(context: Context, serviceComponent: ComponentName) 
 
     val transportControls: MediaControllerCompat.TransportControls
         get() = mediaController.transportControls
+
+    val repeatState = MutableLiveData<Int>().apply { value = 0 }
+    val shuffleState = MutableLiveData<Int>().apply { value = 0 }
 
     private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback(context)
     private val mediaBrowser = MediaBrowserCompat(
@@ -111,6 +123,8 @@ class MusicServiceConnection(context: Context, serviceComponent: ComponentName) 
             // Get a MediaController for the MediaSession.
             mediaController = MediaControllerCompat(context, mediaBrowser.sessionToken).apply {
                 registerCallback(MediaControllerCallback())
+                transportControls.setRepeatMode(PersistentStorage.getInstance(context).getRepeat())
+                transportControls.setShuffleMode(PersistentStorage.getInstance(context).getShuffle())
             }
 
             isConnected.postValue(true)
@@ -170,6 +184,23 @@ class MusicServiceConnection(context: Context, serviceComponent: ComponentName) 
         override fun onSessionDestroyed() {
             mediaBrowserConnectionCallback.onConnectionSuspended()
         }
+
+        override fun onShuffleModeChanged(shuffleMode: Int) {
+            shuffleState.postValue(shuffleMode)
+            serviceScope.launch {
+                PersistentStorage.getInstance(MusicApplication.getInstance()).setShuffle(shuffleMode)
+            }
+        }
+
+        override fun onRepeatModeChanged(repeatMode: Int) {
+            repeatState.postValue(repeatMode)
+
+            serviceScope.launch {
+                PersistentStorage.getInstance(MusicApplication.getInstance()).setRepeat(repeatMode)
+            }
+        }
+
+
     }
 
     companion object {
