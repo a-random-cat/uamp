@@ -97,27 +97,34 @@ class NowPlayingMiniFragment : Fragment() {
      */
     private fun updateUI(view: View, metadata: NowPlayingFragmentViewModel.NowPlayingMetadata) = with(binding) {
         Log.i("Meow", "updateUI")
-        if (!mainActivityViewModel.isShowing.value!!) {
-            Log.i("Meow", "not isShowing")
-            view.isVisible = true
-            if (metadata.albumArtUri == Uri.EMPTY) {
-                playingArt.setImageResource(R.drawable.ic_album_black_24dp)
-            } else {
-                Glide.with(view)
+
+        mainActivityViewModel.isShowing.value?.let {
+            if (!it) {
+                Log.i("Meow", "not isShowing")
+                view.isVisible = true
+                if (metadata.albumArtUri == Uri.EMPTY) {
+                    playingArt.setImageResource(R.drawable.ic_album_black_24dp)
+                } else {
+                    Glide.with(view)
                         .load(metadata.albumArtUri)
                         .into(playing_art)
-            }
-            playingTitle.text = metadata.title
-            playingSubtitle.text = metadata.subtitle
+                }
+                playingTitle.text = metadata.title
+                playingSubtitle.text = metadata.subtitle
 
-            playingTitle.isSelected = true
+                playingTitle.isSelected = true
 
-            if (metadata.durationVal > 0) {
-                playing_progress.max = metadata.durationVal
+                if (metadata.durationVal > 0) {
+                    playing_progress.max = metadata.durationVal
+                }
+            } else {
+                Log.i("Meow", "isShowing")
+                view.isVisible = false
             }
-        } else {
-            Log.i("Meow", "isShowing")
+        } ?: run {
             view.isVisible = false
         }
+
+
     }
 }
