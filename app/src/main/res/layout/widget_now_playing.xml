@@ -3,13 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    android:background="@color/red_500">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorPrimary">
 
     <ImageView
         android:id="@+id/playing_art"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-
+        android:background="@color/white"
         android:src="@drawable/exo_controls_rewind"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
@@ -29,6 +30,7 @@
             android:singleLine="true"
             android:ellipsize="marquee"
             android:textAppearance="@style/TextAppearance.Uamp.Title"
+            android:textColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
         <TextView
@@ -37,6 +39,7 @@
             android:singleLine="true"
             android:ellipsize="marquee"
             android:textAppearance="@style/TextAppearance.Uamp.Subtitle"
+            android:textColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>
@@ -47,6 +50,7 @@
         android:layout_marginLeft="10dp"
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@id/playing_next"
+        app:tint="@color/white"
         android:layout_width="30dp"
         android:layout_height="30dp"/>
     <ImageView

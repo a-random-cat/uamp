@@ -72,7 +72,7 @@ class MediaItemFragmentViewModel(
                         "Up",
                         "Up",
                         "",
-                        Uri.parse(RESOURCE_ROOT_URI + MusicApplication.getInstance().resources.getResourceEntryName(com.example.android.uamp.media.R.drawable.ic_album)),
+                        Uri.parse(RESOURCE_ROOT_URI + "up_folder"),
                         MainActivityViewModel.MediaType.UP(parentId),
                         0
                 ))
@@ -82,7 +82,7 @@ class MediaItemFragmentViewModel(
                     "Play All",
                     "Play All",
                     "",
-                    Uri.parse(RESOURCE_ROOT_URI + MusicApplication.getInstance().resources.getResourceEntryName(com.example.android.uamp.media.R.drawable.ic_album)),
+                    Uri.parse(RESOURCE_ROOT_URI + "play_multiple"),
                     MainActivityViewModel.MediaType.PLAY_ALL(parentId),
                     0
             ))
