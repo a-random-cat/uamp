@@ -117,6 +117,10 @@ class NowPlayingFragmentViewModel(
         updateState(playbackState, metadata)
     }
 
+    fun isPlaying(): Boolean {
+        return playbackState.playbackSpeed > 0
+    }
+
     /**
      * When the session's [MediaMetadataCompat] changes, the [mediaItems] need to be updated
      * as it means the currently active item has changed. As a result, the new, and potentially

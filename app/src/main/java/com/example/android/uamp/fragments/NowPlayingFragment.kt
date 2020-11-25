@@ -149,7 +149,9 @@ class NowPlayingFragment : Fragment() {
         }
 
         binding.speedButton.setOnClickListener {
-            nowPlayingViewModel.setPlaybackSpeed(speeds[(speeds.indexOf(speedFromPlayer) + 1) % speeds.size])
+            if (nowPlayingViewModel.isPlaying()) {
+                nowPlayingViewModel.setPlaybackSpeed(speeds[(speeds.indexOf(speedFromPlayer) + 1) % speeds.size])
+            }
         }
 
         // Initialize playback duration and position to zero
@@ -179,6 +181,9 @@ class NowPlayingFragment : Fragment() {
         speedFromPlayer = metadata.playbackSpeed
         if (metadata.playbackSpeed > 0) {
             speedButton.text = "${metadata.playbackSpeed}x"
+            speedButton.isEnabled = true
+        } else {
+            speedButton.isEnabled = false
         }
     }
 
