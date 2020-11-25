@@ -177,7 +177,9 @@ class NowPlayingFragment : Fragment() {
             seekBar.max = metadata.durationVal
         }
         speedFromPlayer = metadata.playbackSpeed
-        speedButton.text = "${metadata.playbackSpeed}x"
+        if (metadata.playbackSpeed > 0) {
+            speedButton.text = "${metadata.playbackSpeed}x"
+        }
     }
 
     override fun onAttach(context: Context) {
