@@ -16,6 +16,7 @@
 
 package com.example.android.uamp.media
 
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -38,6 +39,9 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter
 import com.google.android.exoplayer2.util.NotificationUtil
+import com.google.android.exoplayer2.util.NotificationUtil.IMPORTANCE_LOW
+import com.google.android.exoplayer2.util.NotificationUtil.Importance
+import com.google.android.exoplayer2.util.Util
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -46,7 +50,7 @@ import java.util.Arrays
 import java.util.HashMap
 
 
-const val NOW_PLAYING_CHANNEL_ID = "com.example.android.uamp.media.NOW_PLAYING"
+const val NOW_PLAYING_CHANNEL_ID = "com.simple_player.NOW_PLAYING"
 const val NOW_PLAYING_NOTIFICATION_ID = 0xb339 // Arbitrary number used to identify our notification
 
 /**
@@ -90,6 +94,7 @@ class UampNotificationManager(
             setFastForwardIncrementMs(0)
             setUseNavigationActionsInCompactView(true)
         }
+
     }
 
     class CatActionReceiver(val mediaController: MediaControllerCompat) : PlayerNotificationManager.CustomActionReceiver {
@@ -154,7 +159,7 @@ class UampNotificationManager(
     }
 
     fun createWithNotificationChannel(
-        context: Context?,
+        context: Context,
         channelId: String?,
         @StringRes channelName: Int,
         @StringRes channelDescription: Int,
@@ -163,13 +168,19 @@ class UampNotificationManager(
         notificationListener: PlayerNotificationManager.NotificationListener?,
         customActionReceiver: PlayerNotificationManager.CustomActionReceiver?
     ): PlayerNotificationManager {
-        NotificationUtil.createNotificationChannel(
-            context!!,
-            channelId!!,
-            channelName,
-            channelDescription,
-            NotificationUtil.IMPORTANCE_LOW
-        )
+        if (Util.SDK_INT >= 26) {
+            val notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val channel = NotificationChannel(channelId, context.getString(channelName), NotificationManager.IMPORTANCE_LOW)
+            if (channelDescription != 0) {
+                channel.description = context.getString(channelDescription)
+                channel.setShowBadge(false)
+                channel.setSound(null, null)
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+
         return PlayerNotificationManager(
             context!!, channelId!!, notificationId,
             mediaDescriptionAdapter!!, notificationListener,
