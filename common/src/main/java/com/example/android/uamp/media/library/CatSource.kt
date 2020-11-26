@@ -120,14 +120,11 @@ class CatSource(val context: Context) : AbstractMusicSource() {
                     var pathVal = cursor.getString(pathColumn)
 
 
-
                     pathVal = pathVal.substring(pathVal.indexOf(headPath)+lenHeadPath)
                     buildPathTo(pathVal)
 
-                    val parentPath = pathVal.substring(0, pathVal.lastIndexOf("/"))
-                    Log.i("Meow", parentPath)
-
-
+                    val parentIndex = pathVal.lastIndexOf("/")
+                    val parentPath = if (parentIndex == -1) "/" else pathVal.substring(0, parentIndex)
 
                     val newItem = MediaMetadataCompat.Builder().apply {
                         id = idVal.toString()
@@ -195,8 +192,6 @@ class CatSource(val context: Context) : AbstractMusicSource() {
                         albumArtUri = RESOURCE_ROOT_URI + context.resources.getResourceEntryName(R.drawable.ic_album)
                         flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
                     }.build()
-
-                    Log.i("Meow", "folderPath:"+path)
 
                     mapping[parentPath]!!.add(albumMetadata)
                     mapping[path] = mutableListOf()

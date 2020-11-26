@@ -72,6 +72,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import java.lang.Exception
 import java.util.Arrays
 import java.util.Collections
 import java.util.HashMap
@@ -159,11 +160,17 @@ open class MusicService : MediaBrowserServiceCompat() {
     /**
      * Create a CastPlayer to handle communication with a Cast session.
      */
-    private val castPlayer: CastPlayer by lazy {
-        CastPlayer(CastContext.getSharedInstance(this)).apply {
-            setSessionAvailabilityListener(UampCastSessionAvailabilityListener())
-            addListener(playerListener)
+    private val castPlayer: CastPlayer? by lazy {
+        var res:CastPlayer? = null
+        try {
+            res = CastPlayer(CastContext.getSharedInstance(this)).apply {
+                setSessionAvailabilityListener(UampCastSessionAvailabilityListener())
+                addListener(playerListener)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+        res
     }
 
     @ExperimentalCoroutinesApi
@@ -221,7 +228,7 @@ open class MusicService : MediaBrowserServiceCompat() {
 
         switchToPlayer(
             previousPlayer = null,
-            newPlayer = if (castPlayer.isCastSessionAvailable) castPlayer else exoPlayer
+            newPlayer = if (castPlayer != null && castPlayer!!.isCastSessionAvailable) castPlayer!! else exoPlayer
         )
 
         playbackSpeed.observeForever(observePlaybackSpeed)
@@ -403,7 +410,7 @@ open class MusicService : MediaBrowserServiceCompat() {
             val items: Array<MediaQueueItem> = metadataList.map {
                 it.toMediaQueueItem()
             }.toTypedArray()
-            castPlayer.loadItems(
+            castPlayer?.loadItems(
                 items,
                 initialWindowIndex,
                 playbackStartPositionMs,
@@ -461,7 +468,7 @@ open class MusicService : MediaBrowserServiceCompat() {
          * remote Cast receiver rather than play audio locally.
          */
         override fun onCastSessionAvailable() {
-            switchToPlayer(currentPlayer, castPlayer)
+            switchToPlayer(currentPlayer, castPlayer!!)
         }
 
         /**
@@ -508,7 +515,6 @@ open class MusicService : MediaBrowserServiceCompat() {
             extras: Bundle?
         ) {
             mediaSource.whenReady {
-                Log.i("Meow", "MediaID:" + mediaId)
                 val itemToPlay: MediaMetadataCompat? = mediaSource.find { item ->
                     item.id == mediaId
                 }
@@ -557,9 +563,6 @@ open class MusicService : MediaBrowserServiceCompat() {
                             C.TIME_UNSET
                         )
                             ?: C.TIME_UNSET
-                    Log.i("Meow", "onPrepareFromMediaId")
-
-                    // TODO build playlist my way!!
 
                     preparePlaylist(
                         buildPlaylist(itemToPlay),

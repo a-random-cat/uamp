@@ -134,14 +134,11 @@ class UampNotificationManager(
         }
 
         override fun onCustomAction(player: Player, action: String, intent: Intent) {
-            Log.i("Meow", "Custom Action")
             when (action) {
                 STEP_FORWARD -> {
-                    Log.i("Meow", STEP_FORWARD)
                     mediaController.transportControls.fastForward()
                 }
                 STEP_BACK -> {
-                    Log.i("Meow", STEP_BACK)
                     mediaController.transportControls.rewind()
                 }
             }

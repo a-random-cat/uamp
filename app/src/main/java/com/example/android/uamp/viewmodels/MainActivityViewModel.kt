@@ -93,7 +93,6 @@ class MainActivityViewModel(
      * browse to it, otherwise play it.
      */
     fun mediaItemClicked(clickedItem: MediaItemData) {
-        Log.i("Meow", "type is "+clickedItem.type)
         when (clickedItem.type) {
             is MediaType.MEDIA -> {
                 playMedia(clickedItem, pauseAllowed = false)
@@ -101,13 +100,10 @@ class MainActivityViewModel(
             }
 
             is MediaType.DIRECTORY -> {
-                Log.i("Meow", clickedItem.type.path)
                 browseToItem(clickedItem)
             }
 
             is MediaType.PLAY_ALL -> {
-                Log.i("Meow", clickedItem.type.path)
-
                 musicServiceConnection.transportControls.playFromMediaId(clickedItem.type.path, null)
             }
 
@@ -151,7 +147,6 @@ class MainActivityViewModel(
 
         val isPrepared = musicServiceConnection.playbackState.value?.isPrepared ?: false
 
-        Log.i("Meow", "${nowPlaying} ${isPrepared}")
         if (isPrepared && mediaItem.mediaId == nowPlaying?.id) {
             musicServiceConnection.playbackState.value?.let { playbackState ->
                 when {
@@ -167,7 +162,6 @@ class MainActivityViewModel(
                 }
             }
         } else {
-            Log.i("Meow", "Playing Media ${mediaItem.mediaId}")
             transportControls.playFromMediaId(mediaItem.mediaId, null)
         }
     }

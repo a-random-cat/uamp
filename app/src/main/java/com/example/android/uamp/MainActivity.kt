@@ -43,8 +43,11 @@ class MainActivity : AppCompatActivity() {
 
         // Initialize the Cast context. This is required so that the media route button can be
         // created in the AppBar
-        castContext = CastContext.getSharedInstance(this)
-
+        try {
+            castContext = CastContext.getSharedInstance(this)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         setContentView(R.layout.activity_main)
 
         // Since UAMP is a music player, the volume controls should adjust the music volume while

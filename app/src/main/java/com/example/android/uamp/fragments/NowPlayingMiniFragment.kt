@@ -79,7 +79,6 @@ class NowPlayingMiniFragment : Fragment() {
         }
 
         mainActivityViewModel.isShowing.observe(viewLifecycleOwner, Observer { isShowing ->
-            Log.i("Meow", "is showing changed to "+isShowing)
             if (isShowing) {
                 view.isVisible = false
             } else {
@@ -96,11 +95,8 @@ class NowPlayingMiniFragment : Fragment() {
      * Internal function used to update all UI elements except for the current item playback
      */
     private fun updateUI(view: View, metadata: NowPlayingFragmentViewModel.NowPlayingMetadata) = with(binding) {
-        Log.i("Meow", "updateUI")
-
-        mainActivityViewModel.isShowing.value?.let {
+       mainActivityViewModel.isShowing.value?.let {
             if (!it) {
-                Log.i("Meow", "not isShowing")
                 view.isVisible = true
                 if (metadata.albumArtUri == Uri.EMPTY) {
                     playingArt.setImageResource(R.drawable.ic_album_black_24dp)
@@ -118,7 +114,6 @@ class NowPlayingMiniFragment : Fragment() {
                     playing_progress.max = metadata.durationVal
                 }
             } else {
-                Log.i("Meow", "isShowing")
                 view.isVisible = false
             }
         } ?: run {

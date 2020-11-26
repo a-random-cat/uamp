@@ -63,9 +63,6 @@ class MediaItemFragmentViewModel(
 
     private val subscriptionCallback = object : SubscriptionCallback() {
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            Log.i("Meow", "Parent:"+parentId)
-
-
             val itemsList = mutableListOf<MediaItemData>()
             if (parentId != UAMP_BROWSABLE_ROOT) {
                 itemsList.add(MediaItemData(
