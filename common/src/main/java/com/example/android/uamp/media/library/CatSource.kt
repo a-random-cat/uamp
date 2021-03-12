@@ -78,8 +78,9 @@ class CatSource(val context: Context) : AbstractMusicSource() {
 
 
 // Show only videos that are at least 5 minutes in duration.
-            val selection = "${pathCode} like ?"
+            val selection = "${pathCode} LIKE ? OR ${pathCode} LIKE ?"
             val selectionArgs = arrayOf(
+                "Music/%",
                 "%/Music/%"
             )
 
