@@ -7,6 +7,7 @@ import android.provider.MediaStore
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
+import com.example.android.uamp.MediaMetadataCompatComparator
 import com.example.android.uamp.MusicApplication
 import com.example.android.uamp.media.R
 import com.example.android.uamp.media.extensions.album
@@ -160,6 +161,9 @@ class CatSource(val context: Context) : AbstractMusicSource() {
                 }
             }
 
+            mapping.values.forEach {
+                it.sortWith(MediaMetadataCompatComparator())
+            }
 
 
             // Add description keys to be used by the ExoPlayer MediaSession extension when
