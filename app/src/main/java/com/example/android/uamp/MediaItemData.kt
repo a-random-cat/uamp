@@ -38,7 +38,7 @@ data class MediaItemData(
     val mediaId: String,
     val title: String,
     val subtitle: String,
-    val albumArtUri: Uri,
+    val albumArtUri: Uri?,
     val type: MainActivityViewModel.MediaType,
     var playbackRes: Int
 ) {

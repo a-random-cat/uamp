@@ -26,6 +26,7 @@ import com.bumptech.glide.Glide
 import com.example.android.uamp.MediaItemData.Companion.PLAYBACK_RES_CHANGED
 import com.example.android.uamp.databinding.FragmentMediaitemBinding
 import com.example.android.uamp.fragments.MediaItemFragment
+import com.example.android.uamp.viewmodels.MainActivityViewModel
 
 /**
  * [RecyclerView.Adapter] of [MediaItemData]s used by the [MediaItemFragment].
@@ -69,10 +70,28 @@ class MediaItemAdapter(
             holder.titleView.text = mediaItem.title
             holder.subtitleView.text = mediaItem.subtitle
             holder.playbackState.setImageResource(mediaItem.playbackRes)
-
-            Glide.with(holder.albumArt)
-                .load(mediaItem.albumArtUri)
-                .into(holder.albumArt)
+            when (mediaItem.type) {
+                is MainActivityViewModel.MediaType.DIRECTORY -> {
+                    Glide.with(holder.albumArt)
+                        .load(R.drawable.folder)
+                        .into(holder.albumArt)
+                }
+                is MainActivityViewModel.MediaType.PLAY_ALL -> {
+                    Glide.with(holder.albumArt)
+                        .load(R.drawable.play_multiple)
+                        .into(holder.albumArt)
+                }
+                is MainActivityViewModel.MediaType.UP -> {
+                    Glide.with(holder.albumArt)
+                        .load(R.drawable.up_folder)
+                        .into(holder.albumArt)
+                }
+                else -> {
+                    Glide.with(holder.albumArt)
+                        .load(mediaItem.albumArtUri)
+                        .into(holder.albumArt)
+                }
+            }
         }
     }
 

@@ -69,7 +69,7 @@ class MediaItemFragmentViewModel(
                         "Up",
                         "Up",
                         "",
-                        Uri.parse(RESOURCE_ROOT_URI + "up_folder"),
+                        null,
                         MainActivityViewModel.MediaType.UP(parentId),
                         0
                 ))
@@ -79,7 +79,7 @@ class MediaItemFragmentViewModel(
                     "Play All",
                     "Play All",
                     "",
-                    Uri.parse(RESOURCE_ROOT_URI + "play_multiple"),
+                    null,
                     MainActivityViewModel.MediaType.PLAY_ALL(parentId),
                     0
             ))
@@ -91,7 +91,7 @@ class MediaItemFragmentViewModel(
                             child.mediaId!!,
                             child.description.title.toString(),
                             subtitle.toString(),
-                            child.description.iconUri!!,
+                            null,
                             MainActivityViewModel.MediaType.DIRECTORY(child.mediaId!!),
                             0
                     ))
