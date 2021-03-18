@@ -24,13 +24,11 @@ import com.example.android.uamp.media.extensions.title
 import com.example.android.uamp.media.extensions.trackNumber
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.lang.StringBuilder
+
 
 class CatSource(val context: Context) : AbstractMusicSource() {
 
     var allAudio: MutableList<MediaMetadataCompat> = mutableListOf()
-
-   // var catalog: List<Pair<String, List<MediaMetadataCompat>>> = emptyList()
     val mapping = HashMap<String, MutableList<MediaMetadataCompat>>()
 
     operator fun get(mediaId: String) = mapping[mediaId]
@@ -51,6 +49,24 @@ class CatSource(val context: Context) : AbstractMusicSource() {
            // catalog = emptyList()
             state = STATE_ERROR
         }
+
+
+
+    }
+
+    suspend fun reloadCatalog(callback:() -> Unit) {
+        if (state == STATE_INITIALIZED) {
+            state = STATE_INITIALIZING
+            mapping.clear()
+            allAudio.clear()
+            updateCatalog()?.let { updatedCatalog ->
+                //  catalog = updatedCatalog
+                state = STATE_INITIALIZED
+                callback()
+            }
+        }
+
+
     }
 
     /**

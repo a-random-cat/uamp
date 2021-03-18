@@ -89,6 +89,7 @@ class MusicServiceConnection(context: Context, serviceComponent: ComponentName) 
 
     fun subscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
         mediaBrowser.subscribe(parentId, callback)
+        parents.add(parentId)
     }
 
     fun unsubscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
@@ -207,6 +208,7 @@ class MusicServiceConnection(context: Context, serviceComponent: ComponentName) 
         // For Singleton instantiation.
         @Volatile
         private var instance: MusicServiceConnection? = null
+        var parents:HashSet<String> = HashSet()
 
         fun getInstance(context: Context, serviceComponent: ComponentName) =
             instance ?: synchronized(this) {

@@ -18,11 +18,13 @@ package com.example.android.uamp.media
 
 import android.app.Notification
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
+import android.database.ContentObserver
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.os.ResultReceiver
+import android.provider.MediaStore
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
@@ -31,12 +33,13 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot.EXTRA_RECENT
+import com.example.android.uamp.MyContentObserver
+import com.example.android.uamp.common.MusicServiceConnection
 import com.example.android.uamp.media.extensions.album
 import com.example.android.uamp.media.extensions.flag
 import com.example.android.uamp.media.extensions.id
@@ -62,7 +65,6 @@ import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
-import com.google.android.exoplayer2.ui.PlayerNotificationManager.CustomActionReceiver
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.google.android.gms.cast.MediaQueueItem
@@ -72,10 +74,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.lang.Exception
-import java.util.Arrays
-import java.util.Collections
-import java.util.HashMap
+
 
 /**
  * This class is the entry point for browsing and playback commands from the APP's UI
@@ -173,6 +172,18 @@ open class MusicService : MediaBrowserServiceCompat() {
         res
     }
 
+
+    fun reloadData() {
+        serviceScope.launch {
+            mediaSource.reloadCatalog {
+                MusicServiceConnection.parents.forEach { notifyChildrenChanged(it) }
+            }
+        }
+    }
+
+
+
+
     @ExperimentalCoroutinesApi
     override fun onCreate() {
         super.onCreate()
@@ -220,6 +231,16 @@ open class MusicService : MediaBrowserServiceCompat() {
         serviceScope.launch {
             mediaSource.load()
         }
+
+
+        val observer = MyContentObserver(Handler(), ::reloadData)
+        this.contentResolver.registerContentObserver(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            true,
+            observer
+        )
+
+
 
         // ExoPlayer will manage the MediaSession for us.
         mediaSessionConnector = MediaSessionConnector(mediaSession)
