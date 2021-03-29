@@ -56,7 +56,7 @@ class NowPlayingFragment : Fragment() {
 
     companion object {
         fun newInstance() = NowPlayingFragment()
-        val speeds = arrayOf(0.75F, 0.9F, 1.0F, 1.1F, 1.25F, 1.5F, 2F)
+        val speeds = arrayOf(0.9F, 1.0F, 1.1F, 1.2F, 1.3F, 1.4F)
     }
 
     override fun onCreateView(
